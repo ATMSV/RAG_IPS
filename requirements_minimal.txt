@@ -1,0 +1,27 @@
+# Минимальные зависимости для RAG системы
+# Если основные пакеты не устанавливаются, используйте эту версию
+
+# Веб API
+fastapi
+uvicorn
+pydantic
+
+# HTTP клиент для LMStudio
+httpx
+openai
+
+# Обработка PDF
+pypdf2
+pdfplumber
+
+# Утилиты
+python-dotenv
+numpy
+
+# Машинное обучение (базовые)
+scikit-learn
+sentence-transformers
+
+# Вместо ChromaDB - простое хранение
+sqlite3  # Встроенный в Python
+pickle   # Встроенный в Python
