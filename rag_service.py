@@ -21,6 +21,25 @@ class RAGService:
             base_url=LMSTUDIO_BASE_URL,
             timeout=180.0  # Увеличили timeout до 3 минут для медленных моделей
         )
+        self.available_models = []  # Инициализируем список доступных моделей
+        self.current_model = None  # Инициализируем текущую модель
+    
+    def _refresh_available_models(self):
+        """Получает список доступных моделей из LMStudio"""
+        try:
+            response = self.lmstudio_client.get("/models")
+            if response.status_code == 200:
+                models_data = response.json()
+                self.available_models = [model['id'] for model in models_data['data']]
+                if not self.current_model and self.available_models:
+                    self.current_model = self.available_models[0]
+                return self.available_models
+            else:
+                print(f"Ошибка при получении списка моделей: {response.status_code} - {response.text}")
+                return []
+        except Exception as e:
+            print(f"Ошибка при подключении к LMStudio: {str(e)}")
+            return []
     
     def _format_context(self, documents: List[Dict]) -> str:
         """Форматирует найденные документы в контекст для LLM"""
@@ -149,13 +168,8 @@ class RAGService:
             health_response = self.lmstudio_client.get("/health")
             if health_response.status_code == 200:
                 lmstudio_status = "online"
-                
-                # Получаем информацию о модели
-                models_response = self.lmstudio_client.get("/models")
-                if models_response.status_code == 200:
-                    models = models_response.json()
-                    if models.get('data'):
-                        lmstudio_model = models['data'][0]['id']
+                self._refresh_available_models()
+                lmstudio_model = self.current_model if self.current_model else None
         except:
             pass
         
@@ -168,7 +182,8 @@ class RAGService:
             "lmstudio": {
                 "status": lmstudio_status,
                 "base_url": LMSTUDIO_BASE_URL,
-                "model": lmstudio_model
+                "model": lmstudio_model,
+                "available_models": self.available_models
             },
             "document_sources": self.vector_db.get_document_sources()
         }
