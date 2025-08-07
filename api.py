@@ -206,3 +206,91 @@ if __name__ == "__main__":
         reload=True,
         log_level="info"
     )
+
+@app.get("/endpoints")
+async def get_endpoints():
+    """Возвращает список доступных эндпоинтов для Cline"""
+    return {
+        "service": "RAG_IPS",
+        "version": "1.0",
+        "description": "RAG система для документации IPS PLM",
+        "endpoints": [
+            {
+                "path": "/query",
+                "method": "POST",
+                "description": "Основной эндпоинт для запросов к RAG системе",
+                "parameters": {
+                    "question": {
+                        "type": "string",
+                        "required": True,
+                        "description": "Вопрос для поиска в документации"
+                    },
+                    "max_docs": {
+                        "type": "integer", 
+                        "required": False,
+                        "default": 5,
+                        "description": "Максимальное количество документов для поиска"
+                    }
+                },
+                "example": {
+                    "question": "Что такое модули расширения IPS PLM?",
+                    "max_docs": 5
+                }
+            },
+            {
+                "path": "/status",
+                "method": "GET", 
+                "description": "Получение статуса RAG системы",
+                "parameters": {},
+                "example": {}
+            },
+            {
+                "path": "/search",
+                "method": "POST",
+                "description": "Поиск документов без генерации ответа",
+                "parameters": {
+                    "query": {
+                        "type": "string",
+                        "required": True,
+                        "description": "Поисковый запрос"
+                    },
+                    "max_docs": {
+                        "type": "integer",
+                        "required": False, 
+                        "default": 5,
+                        "description": "Максимальное количество документов"
+                    }
+                },
+                "example": {
+                    "query": "модули расширения",
+                    "max_docs": 3
+                }
+            },
+            {
+                "path": "/process-documents",
+                "method": "POST",
+                "description": "Обработка новых документов",
+                "parameters": {
+                    "directory": {
+                        "type": "string",
+                        "required": True,
+                        "description": "Путь к директории с документами"
+                    },
+                    "clear_existing": {
+                        "type": "boolean",
+                        "required": False,
+                        "default": False,
+                        "description": "Очистить существующие документы перед добавлением"
+                    }
+                },
+                "example": {
+                    "directory": "./docs",
+                    "clear_existing": False
+                }
+            }
+        ]
+    }
+
+@app.get("/favicon.ico")
+async def get_favicon():
+    return {"message": "No favicon available"}
