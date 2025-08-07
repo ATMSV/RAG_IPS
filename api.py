@@ -80,6 +80,15 @@ async def get_status():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка получения статуса: {str(e)}")
 
+@app.get("/models", response_model=Dict, summary="Получить список доступных моделей")
+async def get_available_models():
+    """Получить список всех доступных моделей в LMStudio"""
+    try:
+        available_models = rag_service.get_available_models()
+        return {"models": available_models}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка получения списка моделей: {str(e)}")
+
 @app.post("/query", response_model=QueryResponse, summary="Поиск и генерация ответа")
 async def query_rag(request: QueryRequest):
     """
